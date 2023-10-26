@@ -1,6 +1,8 @@
 package com.spring.register.controller;
 
 import org.springframework.dao.DataIntegrityViolationException;
+import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.web.authentication.logout.SecurityContextLogoutHandler;
 import org.springframework.stereotype.Controller;
 import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -9,6 +11,8 @@ import org.springframework.web.bind.annotation.PostMapping;
 import com.spring.register.dto.AddUserRequest;
 import com.spring.register.service.UserService;
 
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 
@@ -53,5 +57,13 @@ public class UserController {
 	@GetMapping("/signup")
 	public String signup(AddUserRequest addUserRequest) {
 		return "signup";
+	}
+	
+	@GetMapping("/logout")
+	public String logout(HttpServletRequest request, HttpServletResponse response) {
+		new SecurityContextLogoutHandler().logout(request, response,
+				SecurityContextHolder.getContext().getAuthentication());
+		
+		return "redirect:/login";
 	}
 }
