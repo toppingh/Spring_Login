@@ -10,12 +10,15 @@ import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
 
+import com.spring.register.service.PrincipalOauth2UserService;
+
 import lombok.RequiredArgsConstructor;
 
 @RequiredArgsConstructor
 @Configuration
 public class WebSecurityConfig {
 	private final UserDetailsService userService;
+	private final PrincipalOauth2UserService principalOauth2UserService;
 	
 	// 시큐리티 기능 비활성화
 	@Bean
@@ -40,6 +43,15 @@ public class WebSecurityConfig {
 						.usernameParameter("email")
 						.defaultSuccessUrl("/");
 				})
+				
+				// oauth2 login
+				.oauth2Login(oauth2Login -> oauth2Login
+						.loginPage("/login")
+						.defaultSuccessUrl("/")
+						.userInfoEndpoint(userInfo -> userInfo
+							.userService(principalOauth2UserService)
+						)
+				)
 				
 				//로그아웃 설정
 				.logout(logout -> {

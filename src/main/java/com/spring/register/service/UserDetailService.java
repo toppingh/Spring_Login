@@ -23,7 +23,7 @@ public class UserDetailService implements UserDetailsService {
 				.orElseThrow(()-> {
 					return new UsernameNotFoundException("해당 유저를 찾을 수 없습니다!");
 				});
-		return new PrincipalDetails(user);
+		return new PrincipalDetails(user, null);
 	}
 
 }
