@@ -1,5 +1,6 @@
 package com.spring.register.service;
 
+import java.util.Map;
 import java.util.Optional;
 
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
@@ -11,6 +12,10 @@ import org.springframework.stereotype.Service;
 
 import com.spring.register.domain.PrincipalDetails;
 import com.spring.register.domain.Users;
+import com.spring.register.oauth.GoogleUserInfo;
+import com.spring.register.oauth.KakaoUserInfo;
+import com.spring.register.oauth.NaverUserInfo;
+import com.spring.register.oauth.OAuth2UserInfo;
 import com.spring.register.repository.UserRepository;
 
 import lombok.RequiredArgsConstructor;
@@ -28,10 +33,27 @@ public class PrincipalOauth2UserService extends DefaultOAuth2UserService {
 		OAuth2User oAuth2User = super.loadUser(userRequest);
 		log.info("getAttributes : {}", oAuth2User.getAttributes());
 		
+		OAuth2UserInfo oAuth2UserInfo = null;
+		
 		String provider = userRequest.getClientRegistration().getRegistrationId();
-		String provider_id = oAuth2User.getAttribute("sub");
-		String email = oAuth2User.getAttribute("email");
+		
+		if (provider.equals("google")) {
+			log.info("구글 로그인 요청");
+			oAuth2UserInfo = new GoogleUserInfo(oAuth2User.getAttributes());
+		} else if (provider.equals("naver")) {
+			log.info("네이버 로그인 요청");
+			oAuth2UserInfo = new NaverUserInfo((Map)oAuth2User.getAttributes().get("response"));
+			System.out.println((Map)oAuth2User.getAttributes().get("response"));
+		} else if (provider.equals("kakao") ) {
+			log.info("카카오 로그인 요청");
+			oAuth2UserInfo = new KakaoUserInfo((Map)oAuth2User.getAttributes());
+			System.out.println((Map)oAuth2User.getAttributes());
+		}
+	
+		String provider_id = oAuth2UserInfo.getProviderId();
+		String email = oAuth2UserInfo.getEmail();
 		String social_id =provider + "_" + provider_id;
+		System.out.println(email);
 		
 		Optional<Users> optionalUsers = userRepository.findByEmail(email);
 		Users users = null;
